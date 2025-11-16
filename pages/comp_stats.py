@@ -64,10 +64,8 @@ SPREADSHEET_NAME = "HS SPREADSHEET NEW ROSTER"
 @st.cache_data
 def load_comp_sheet():
     try:
-        scope = ["https://spreadsheets.google.com/feeds",
-                 "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            "service_account.json", scope)
+        service_info = st.secrets["gcp_service_account"]
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(service_info, scope)
         client = gspread.authorize(creds)
 
         sheet = client.open(SPREADSHEET_NAME).worksheet("Comp Stats")

@@ -56,13 +56,8 @@ with col_r:
 # =========================
 def load_map_wl_rate():
     try:
-        scope = [
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive",
-        ]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            "service_account.json", scope
-        )
+        service_info = st.secrets["gcp_service_account"]
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(service_info, scope)
         client = gspread.authorize(creds)
 
         sheet = client.open("HS SPREADSHEET NEW ROSTER").worksheet("Map W/L Rate")

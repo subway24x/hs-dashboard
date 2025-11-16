@@ -21,13 +21,8 @@ WORKSHEET_NAME = "All Match History"
 @st.cache_data
 def load_match_history():
     try:
-        scope = [
-            "https://spreadsheets.google.com/feeds",
-            "https://www.googleapis.com/auth/drive",
-        ]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            "service_account.json", scope
-        )
+        service_info = st.secrets["gcp_service_account"]
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(service_info, scope)
         client = gspread.authorize(creds)
 
         sheet = client.open(SPREADSHEET_NAME).worksheet(WORKSHEET_NAME)
