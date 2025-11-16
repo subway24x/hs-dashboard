@@ -1,17 +1,25 @@
 import pandas as pd
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
+import streamlit as st
 
 SPREADSHEET_NAME = "HS SPREADSHEET NEW ROSTER"
 WORKSHEET_NAME = "All Match History"
 
-def load_clean_data():
+
+def get_gspread_client():
     scope = [
-        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-    client = gspread.authorize(creds)
+
+    creds = Credentials.from_service_account_info(st.secrets, scopes=scope)
+    return gspread.authorize(creds)
+
+
+def load_clean_data():
+
+    client = get_gspread_client()
     sheet = client.open(SPREADSHEET_NAME).worksheet(WORKSHEET_NAME)
 
     raw = sheet.get_all_values()
@@ -28,8 +36,10 @@ def load_clean_data():
     # Combine 3 roster columns → 1
     roster_cols = [c for c in df.columns if "Roster" in c or "Pink" in c or "Cyan" in c]
     if roster_cols:
-        df["Rosters"] = df[roster_cols].apply(lambda r: 
-            " | ".join([v for v in r if v.strip()]), axis=1)
+        df["Rosters"] = df[roster_cols].apply(
+            lambda r: " | ".join([v for v in r if v.strip()]),
+            axis=1
+        )
         df = df.drop(columns=roster_cols)
 
     final_columns = [
